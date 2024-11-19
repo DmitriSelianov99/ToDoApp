@@ -8,4 +8,5 @@
 
 "_search" = "Search";
 "_tasks" = "Tasks";
+"%lld _some-tasks" = "%lld Task(s)";
 "_no-title" = "No Title";
