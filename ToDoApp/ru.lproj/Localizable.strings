@@ -1,0 +1,10 @@
+/* 
+  Localizable.strings
+  ToDoApp
+
+  Created by Дмитрий Сельянов on 19.11.2024.
+  
+*/
+
+"_search" = "Найти задачу";
+"_tasks" = "Задачи";
