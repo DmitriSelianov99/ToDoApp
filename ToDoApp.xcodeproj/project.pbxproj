@@ -13,6 +13,8 @@
 		347DE9EF2CEC722200E8E37D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 347DE9EE2CEC722200E8E37D /* Preview Assets.xcassets */; };
 		347DE9F72CEC729200E8E37D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 347DE9F92CEC729200E8E37D /* Localizable.strings */; };
 		347DE9FC2CEC992700E8E37D /* Date + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347DE9FB2CEC992700E8E37D /* Date + Extensions.swift */; };
+		34B90DEE2CECC58B00E52DC3 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B90DED2CECC58B00E52DC3 /* CoreDataManager.swift */; };
+		34B90DF12CECC6AD00E52DC3 /* TodosContainer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 34B90DEF2CECC6AD00E52DC3 /* TodosContainer.xcdatamodeld */; };
 		34BCEC662CECA79200F58D2E /* TitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BCEC652CECA79200F58D2E /* TitleView.swift */; };
 		34BCEC682CECA7D200F58D2E /* TodoMVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BCEC672CECA7D200F58D2E /* TodoMVM.swift */; };
 		34BCEC6C2CECABD000F58D2E /* Customizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BCEC6B2CECABD000F58D2E /* Customizations.swift */; };
@@ -27,6 +29,8 @@
 		347DE9F82CEC729200E8E37D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		347DE9FA2CEC729300E8E37D /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		347DE9FB2CEC992700E8E37D /* Date + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date + Extensions.swift"; sourceTree = "<group>"; };
+		34B90DED2CECC58B00E52DC3 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
+		34B90DF02CECC6AD00E52DC3 /* TodosContainer.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TodosContainer.xcdatamodel; sourceTree = "<group>"; };
 		34BCEC652CECA79200F58D2E /* TitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleView.swift; sourceTree = "<group>"; };
 		34BCEC672CECA7D200F58D2E /* TodoMVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoMVM.swift; sourceTree = "<group>"; };
 		34BCEC6B2CECABD000F58D2E /* Customizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Customizations.swift; sourceTree = "<group>"; };
@@ -63,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				34BCEC692CECA7F400F58D2E /* System */,
+				34B90DEC2CECC54E00E52DC3 /* CoreData Module */,
 				347DE9E92CEC722000E8E37D /* ContentView.swift */,
 				34BCEC652CECA79200F58D2E /* TitleView.swift */,
 				34BCEC672CECA7D200F58D2E /* TodoMVM.swift */,
@@ -78,6 +83,15 @@
 				347DE9EE2CEC722200E8E37D /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		34B90DEC2CECC54E00E52DC3 /* CoreData Module */ = {
+			isa = PBXGroup;
+			children = (
+				34B90DED2CECC58B00E52DC3 /* CoreDataManager.swift */,
+				34B90DEF2CECC6AD00E52DC3 /* TodosContainer.xcdatamodeld */,
+			);
+			path = "CoreData Module";
 			sourceTree = "<group>";
 		};
 		34BCEC692CECA7F400F58D2E /* System */ = {
@@ -176,7 +190,9 @@
 				347DE9E82CEC722000E8E37D /* ToDoAppApp.swift in Sources */,
 				34BCEC662CECA79200F58D2E /* TitleView.swift in Sources */,
 				34BCEC682CECA7D200F58D2E /* TodoMVM.swift in Sources */,
+				34B90DEE2CECC58B00E52DC3 /* CoreDataManager.swift in Sources */,
 				34BCEC6C2CECABD000F58D2E /* Customizations.swift in Sources */,
+				34B90DF12CECC6AD00E52DC3 /* TodosContainer.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,6 +410,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		34B90DEF2CECC6AD00E52DC3 /* TodosContainer.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				34B90DF02CECC6AD00E52DC3 /* TodosContainer.xcdatamodel */,
+			);
+			currentVersion = 34B90DF02CECC6AD00E52DC3 /* TodosContainer.xcdatamodel */;
+			path = TodosContainer.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 347DE9DC2CEC722000E8E37D /* Project object */;
 }

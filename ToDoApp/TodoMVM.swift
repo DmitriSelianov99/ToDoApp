@@ -31,6 +31,8 @@ class TodoViewModel: ObservableObject {
     @Published var todos: [TodoModel] = []
     @Published var total: Int = 0
     
+    var vm = CoreDataTodoViewModel()
+    
     @AppStorage("isFirstRun") var isFirstRun = true
     
     init() {
@@ -42,7 +44,27 @@ class TodoViewModel: ObservableObject {
             print("isFirstRun updated to: \(isFirstRun)")
         } else {
             print("Not the first run. isFirstRun: \(isFirstRun)")
+            getTodosFromDB()
         }
+    }
+    
+    func getTodosFromDB() {
+        todos.removeAll()
+        
+        DispatchQueue.global().async {
+            for todo in self.vm.todos {
+                self.todos.append(
+                    TodoModel(
+                        id: Int(todo.id),
+                        title: todo.title ?? "Default title",
+                        todo: todo.todo ?? "TODO",
+                        completed: todo.completed,
+                        userId: Int(todo.userId),
+                        date: todo.date ?? Date())
+                )
+            }
+        }
+        
     }
 
     
@@ -57,10 +79,15 @@ class TodoViewModel: ObservableObject {
                 DispatchQueue.main.async { [weak self] in
                     self?.todos = response.todos
                     self?.total = response.total
+                    
+                    for todo in response.todos {
+                        self?.vm.addTodo(todo)
+                    }
+                    
+                    self?.vm.todos.sort(by: { first, second in
+                        first.id < second.id
+                    })
                 }
-                
-                
-                
             } else {
                 print("NO DATA")
             }

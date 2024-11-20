@@ -95,6 +95,13 @@ struct TodoListView: View {
                         Text(title)
                             .font(.system(size: 16, weight: .medium))
                             .foregroundStyle(todoModel.completed ? .customWhite.opacity(0.5) : .customWhite)
+                            .overlay(alignment: .leading) {
+                                Rectangle()
+                                    .fill(.customWhite.opacity(0.5))
+                                    .frame(height: 1)
+                                    .frame(maxWidth: todoModel.completed ? .infinity : 0)
+                                    .animation(.easeOut, value: todoModel.completed)
+                            }
                     } else {
                         Text("_no-title")
                             .font(.system(size: 16, weight: .medium))
@@ -126,10 +133,7 @@ struct TodoListView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 12)
             .onTapGesture {
-                DispatchQueue.global().async {
-                    todoModel.changeTodoStatus()
-
-                }
+                todoModel.changeTodoStatus()
             }
             
             Rectangle()
