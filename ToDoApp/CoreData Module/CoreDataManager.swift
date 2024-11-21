@@ -11,7 +11,8 @@ class CoreDataManager {
     static let shared = CoreDataManager()
     
     let container: NSPersistentContainer
-    let context: NSManagedObjectContext
+    var context: NSManagedObjectContext 
+
     
     init() {
         container = NSPersistentContainer(name: "TodosContainer")
@@ -81,12 +82,12 @@ class CoreDataTodoViewModel: ObservableObject {
     
     func toggleCompleted(for id: Int) {
         let request = NSFetchRequest<TodoEntity>(entityName: "TodoEntity")
-        request.predicate = NSPredicate(format: "id == %d", id) // Фильтруем по ID
+        request.predicate = NSPredicate(format: "id == %d", id)
         
         do {
             if let todo = try manager.context.fetch(request).first {
-                todo.completed.toggle() // Меняем значение completed
-                save() // Сохраняем изменения
+                todo.completed.toggle()
+                save()
                 print("Toggled completed for todo with id: \(id)")
             } else {
                 print("Todo with id \(id) not found")
@@ -98,13 +99,13 @@ class CoreDataTodoViewModel: ObservableObject {
     
     func editTodo(for id: Int, title: String, text: String) {
         let request = NSFetchRequest<TodoEntity>(entityName: "TodoEntity")
-        request.predicate = NSPredicate(format: "id == %d", id) // Фильтруем по ID
+        request.predicate = NSPredicate(format: "id == %d", id)
         
         do {
             if let todo = try manager.context.fetch(request).first {
                 todo.title = title
                 todo.todo = text
-                save() // Сохраняем изменения
+                save()
                 print("Editing completed for todo with id: \(id)")
             } else {
                 print("Todo with id \(id) not found")
@@ -116,11 +117,10 @@ class CoreDataTodoViewModel: ObservableObject {
     
     func deleteTodo(for id: Int) {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TodoEntity")
-        request.predicate = NSPredicate(format: "id == %d", id) // Фильтруем по ID
-        
+        request.predicate = NSPredicate(format: "id == %d", id)
         do {
             let results = try manager.context.fetch(request)
-            if let todoToDelete = results.first { // Предполагаем, что ID уникальный
+            if let todoToDelete = results.first {
                 manager.context.delete(todoToDelete as! NSManagedObject)
                 save()
                 print("Объект с ID \(id) удален")

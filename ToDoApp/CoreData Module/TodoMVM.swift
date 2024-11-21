@@ -69,11 +69,19 @@ class TodoViewModel: ObservableObject {
     
     func findTodo(by word: String) {
         if word.isEmpty {
-            // Если строка поиска пуста, возвращаем полный список
             todos = allTodos
         } else {
-            // Фильтруем только подходящие записи
-            todos = allTodos.filter { $0.title?.localizedCaseInsensitiveContains(word) == true }
+            
+            let titleFilter = allTodos.filter { $0.title?.localizedCaseInsensitiveContains(word) == true }
+            let todoFilter = allTodos.filter { $0.todo.localizedCaseInsensitiveContains(word) == true }
+            
+            
+            if !titleFilter.isEmpty {
+                todos = titleFilter
+            } else {
+                todos = todoFilter
+            }
+
         }
     }
     
@@ -93,9 +101,7 @@ class TodoViewModel: ObservableObject {
                 )
             }
             
-            self.todos.sort { first, second in
-                first.id > second.id
-            }
+            self.todos.sort { $0.id > $1.id }
             
             self.allTodos = self.todos
         }
@@ -119,9 +125,8 @@ class TodoViewModel: ObservableObject {
                         self?.coreDataVM.addTodo(todo)
                     }
                     
-                    self?.coreDataVM.todos.sort(by: { first, second in
-                        first.id < second.id
-                    })
+                    self?.coreDataVM.todos.sort { $0.id < $1.id }
+                    self?.getTodosFromDB()
                 }
             } else {
                 print("NO DATA")
