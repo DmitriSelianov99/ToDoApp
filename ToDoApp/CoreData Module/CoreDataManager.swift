@@ -79,6 +79,60 @@ class CoreDataTodoViewModel: ObservableObject {
         save()
     }
     
+    func toggleCompleted(for id: Int) {
+        let request = NSFetchRequest<TodoEntity>(entityName: "TodoEntity")
+        request.predicate = NSPredicate(format: "id == %d", id) // Фильтруем по ID
+        
+        do {
+            if let todo = try manager.context.fetch(request).first {
+                todo.completed.toggle() // Меняем значение completed
+                save() // Сохраняем изменения
+                print("Toggled completed for todo with id: \(id)")
+            } else {
+                print("Todo with id \(id) not found")
+            }
+        } catch let error {
+            print("Error toggling completed: \(error.localizedDescription)")
+        }
+    }
+    
+    func editTodo(for id: Int, title: String, text: String) {
+        let request = NSFetchRequest<TodoEntity>(entityName: "TodoEntity")
+        request.predicate = NSPredicate(format: "id == %d", id) // Фильтруем по ID
+        
+        do {
+            if let todo = try manager.context.fetch(request).first {
+                todo.title = title
+                todo.todo = text
+                save() // Сохраняем изменения
+                print("Editing completed for todo with id: \(id)")
+            } else {
+                print("Todo with id \(id) not found")
+            }
+        } catch let error {
+            print("Error editing completed: \(error.localizedDescription)")
+        }
+    }
+    
+    func deleteTodo(for id: Int) {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: "TodoEntity")
+        request.predicate = NSPredicate(format: "id == %d", id) // Фильтруем по ID
+        
+        do {
+            let results = try manager.context.fetch(request)
+            if let todoToDelete = results.first { // Предполагаем, что ID уникальный
+                manager.context.delete(todoToDelete as! NSManagedObject)
+                save()
+                print("Объект с ID \(id) удален")
+            } else {
+                print("Объект с ID \(id) не найден.")
+            }
+        } catch let error {
+            print("Ошибка при удалении: \(error.localizedDescription)")
+        }
+    }
+
+    
     func save() {
         todos.removeAll()
         

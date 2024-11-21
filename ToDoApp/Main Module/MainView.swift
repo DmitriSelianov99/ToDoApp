@@ -4,13 +4,22 @@
 
 
 import SwiftUI
+import UIKit
+
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
 
 
-
-
-struct ContentView: View {
+struct MainView: View {
     
+    @State var currentModel: TodoModel? = nil
     @State var textfieldText: String = ""
+    @State var isNewTodoViewPresented: Bool = false
+    @State var isTodoSelected: Bool = false
+    @State var isEditingViewOpen: Bool = false
     
     @StateObject var vm = TodoViewModel()
     
@@ -19,29 +28,43 @@ struct ContentView: View {
             
             Color.customBlack.ignoresSafeArea()
             
-            VStack(alignment: .leading, spacing: 10.0) {
-                TitleView()
-                    .onTapGesture {
-                        vm.getTodos()
-                    }
-                
-                SearchView(textfieldText: $textfieldText)
-                
-                ScrollView {
-                    ForEach(vm.todos.indices, id: \.self) { index in
-                        TodoListView(todoModel: $vm.todos[index])
+            VStack {
+                VStack(alignment: .leading, spacing: 10.0) {
+                    TitleView()
+                    
+                    SearchView(textfieldText: $textfieldText, vm: vm)
+                    
+                    ScrollView {
+                        ForEach(vm.todos.indices, id: \.self) { index in
+                            TodoListView(
+                                currentModel: $currentModel,
+                                todoModel: $vm.todos[index],
+                                vm: vm,
+                                isTodoSelected: $isTodoSelected, isEditingViewOpen: $isEditingViewOpen
+                            )
+                        }
                     }
                 }
+                .padding(.horizontal, 20)
+                .fullScreenCover(isPresented: $isNewTodoViewPresented, content: {
+                    NewTodoView(vm: vm)
+                })
                 
-                FooterView(totalTasks: $vm.total)
+                FooterView(
+                    vm: vm.coreDataVM,
+                    isNewTodoViewPresented: $isNewTodoViewPresented
+                )
             }
-            .padding(.horizontal, 20)
         }
+        .onTapGesture {
+            UIApplication.shared.endEditing()
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 
 #Preview {
-    ContentView()
+    MainView()
 }
 
 
@@ -49,6 +72,7 @@ struct ContentView: View {
 struct SearchView: View {
     
     @Binding var textfieldText: String
+    @ObservedObject var vm: TodoViewModel
     
     var body: some View {
         ZStack {
@@ -76,19 +100,29 @@ struct SearchView: View {
         }
         .frame(height: 36)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .onChange(of: textfieldText) { oldValue, newValue in
+            vm.findTodo(by: newValue)
+        }
     }
 }
 
 
 struct TodoListView: View {
     
+    @Binding var currentModel: TodoModel?
     @Binding var todoModel: TodoModel
+    @ObservedObject var vm: TodoViewModel
+    
+    @Binding var isTodoSelected: Bool
+    @Binding var isEditingViewOpen: Bool
+    
     
     var body: some View {
         VStack {
             HStack(alignment: .top) {
                 Image(systemName: todoModel.completed ? "checkmark.circle" : "circle")
                     .foregroundStyle(todoModel.completed ? .customYellow : .customStroke)
+                    .opacity(isTodoCurrent() ? 0 : 1)
                 
                 VStack(alignment: .leading, spacing: 6.0) {
                     if let title = todoModel.title {
@@ -103,7 +137,7 @@ struct TodoListView: View {
                                     .animation(.easeOut, value: todoModel.completed)
                             }
                     } else {
-                        Text("_no-title")
+                        Text("Default title")
                             .font(.system(size: 16, weight: .medium))
                             .foregroundStyle(todoModel.completed ? .customWhite.opacity(0.5) : .customWhite)
                             .overlay(alignment: .leading) {
@@ -134,6 +168,7 @@ struct TodoListView: View {
             .padding(.top, 12)
             .onTapGesture {
                 todoModel.changeTodoStatus()
+                vm.coreDataVM.toggleCompleted(for: todoModel.id)
             }
             
             Rectangle()
@@ -141,13 +176,67 @@ struct TodoListView: View {
                 .frame(height: 0.5)
                 .frame(maxWidth: .infinity)
                 .padding(.top, 12)
+                .opacity(isTodoCurrent() ? 0 : 1)
         }
+        .background(isTodoCurrent() ? .customGray : .clear)
+        .clipShape(RoundedRectangle(cornerRadius: isTodoCurrent() ? 10 : 0))
+        .padding(.horizontal, isTodoCurrent() ? 20 : 0)
+        .contextMenu(ContextMenu(menuItems: {
+            Button {
+                isEditingViewOpen = true
+            } label: {
+                ContextMenuItemView(text: "_edit", image: "square.and.pencil")
+            }
+            
+            Button {
+                
+            } label: {
+                ContextMenuItemView(text: "_share", image: "square.and.arrow.up")
+            }
+            
+            Divider()
+            
+            Button(role: .destructive) {
+                vm.deleteTodo(for: todoModel.id)
+            } label: {
+                ContextMenuItemView(text: "_delete", image: "trash")
+            }
+            .onAppear(perform: {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    currentModel = todoModel
+                    isTodoSelected = true
+                }
+            })
+        }))
+        .fullScreenCover(isPresented: $isEditingViewOpen, content: {
+            NewTodoView(todoModel: currentModel!, vm: vm)
+        })
+    }
+    
+    func isTodoCurrent() -> Bool {
+        return isTodoSelected && (currentModel == todoModel)
+    }
+}
+
+struct ContextMenuItemView: View {
+    
+    let text: LocalizedStringResource
+    let image: String
+    
+    var body: some View {
+        HStack {
+            Text(text)
+            Image(systemName: image)
+                .renderingMode(.template)
+        }
+        .font(.system(size: 17, weight: .regular))
     }
 }
 
 struct FooterView: View {
     
-    @Binding var totalTasks: Int
+    @ObservedObject var vm: CoreDataTodoViewModel
+    @Binding var isNewTodoViewPresented: Bool
     
     var body: some View {
         ZStack {
@@ -163,7 +252,8 @@ struct FooterView: View {
                 
                 Spacer()
                 
-                Text("\(totalTasks) _some-tasks")
+//                Text("\(vm.todos.count) _some-tasks\(Customizations.customManager.russianTaskTale(with: vm.todos.count))")
+                Text(String(format: NSLocalizedString("_some-tasks", comment: ""), "\(vm.todos.count)", "\(Customizations.customManager.russianTaskTale(with: vm.todos.count))"))
                     .font(.system(size: 11, weight: .regular))
                     .foregroundStyle(.customWhite)
                 
@@ -172,6 +262,9 @@ struct FooterView: View {
                 Image(systemName: "square.and.pencil")
                     .frame(width: 25, height: 25)
                     .foregroundStyle(.customYellow)
+                    .onTapGesture {
+                        isNewTodoViewPresented.toggle()
+                    }
             }
             .padding(.horizontal, 20)
             

@@ -8,5 +8,18 @@
 
 "_search" = "Search";
 "_tasks" = "Tasks";
-"%lld _some-tasks" = "%lld Task(s)";
+"_some-tasks" = "%1$@ Task(s)";
 "_no-title" = "No Title";
+"_back" = "Back";
+"_add-title" = "Enter a Title...";
+"_add-todo" = "Enter a Todo...";
+
+//MARK: - ContextMenu
+"_edit" = "Edit";
+"_share" = "Share";
+"_delete" = "Delete";
+
+//MARK: - Alert
+"_attention" = "Attention!";
+"_empty-fileds" = "The title and description must be filled in!";
+"_cancel" = "Cancel";

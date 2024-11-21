@@ -13,7 +13,7 @@ struct TodoResponse: Codable {
     let limit: Int
 }
 
-struct TodoModel: Codable, Identifiable {
+struct TodoModel: Codable, Identifiable, Equatable {
     let id: Int
     let title: String?
     let todo: String
@@ -29,9 +29,10 @@ struct TodoModel: Codable, Identifiable {
 class TodoViewModel: ObservableObject {
     
     @Published var todos: [TodoModel] = []
+    private var allTodos: [TodoModel] = []
     @Published var total: Int = 0
     
-    var vm = CoreDataTodoViewModel()
+    var coreDataVM = CoreDataTodoViewModel()
     
     @AppStorage("isFirstRun") var isFirstRun = true
     
@@ -39,7 +40,7 @@ class TodoViewModel: ObservableObject {
         print("Initial isFirstRun value: \(isFirstRun)")
         if isFirstRun {
             print("First run detected. Fetching todos...")
-            getTodos()
+            getTodosFromURL()
             isFirstRun = false
             print("isFirstRun updated to: \(isFirstRun)")
         } else {
@@ -48,11 +49,39 @@ class TodoViewModel: ObservableObject {
         }
     }
     
+    func getLastTodoId() -> Int {
+        var lastTodoId = 0
+        var idArray: [Int] = []
+        
+        for todo in todos {
+            idArray.append(todo.id)
+        }
+        
+        lastTodoId = idArray.max() ?? 0
+        
+        return lastTodoId
+    }
+    
+    func deleteTodo(for id: Int) {
+        coreDataVM.deleteTodo(for: id)
+        getTodosFromDB()
+    }
+    
+    func findTodo(by word: String) {
+        if word.isEmpty {
+            // Если строка поиска пуста, возвращаем полный список
+            todos = allTodos
+        } else {
+            // Фильтруем только подходящие записи
+            todos = allTodos.filter { $0.title?.localizedCaseInsensitiveContains(word) == true }
+        }
+    }
+    
     func getTodosFromDB() {
         todos.removeAll()
         
-        DispatchQueue.global().async {
-            for todo in self.vm.todos {
+        DispatchQueue.main.async {
+            for todo in self.coreDataVM.todos {
                 self.todos.append(
                     TodoModel(
                         id: Int(todo.id),
@@ -63,12 +92,18 @@ class TodoViewModel: ObservableObject {
                         date: todo.date ?? Date())
                 )
             }
+            
+            self.todos.sort { first, second in
+                first.id > second.id
+            }
+            
+            self.allTodos = self.todos
         }
         
     }
 
     
-    func getTodos() {
+    func getTodosFromURL() {
         guard let url = URL(string: "https://dummyjson.com/todos") else { return }
         
         fetchTodos(from: url) { data in
@@ -81,10 +116,10 @@ class TodoViewModel: ObservableObject {
                     self?.total = response.total
                     
                     for todo in response.todos {
-                        self?.vm.addTodo(todo)
+                        self?.coreDataVM.addTodo(todo)
                     }
                     
-                    self?.vm.todos.sort(by: { first, second in
+                    self?.coreDataVM.todos.sort(by: { first, second in
                         first.id < second.id
                     })
                 }
