@@ -30,7 +30,7 @@ struct MainView: View {
             
             VStack {
                 VStack(alignment: .leading, spacing: 10.0) {
-                    TitleView()
+                    titleView
                     
                     SearchView(textfieldText: $textfieldText, vm: vm)
                     
@@ -65,6 +65,14 @@ struct MainView: View {
 
 #Preview {
     MainView()
+}
+
+extension MainView {
+    private var titleView: some View {
+        Text("_tasks")
+           .foregroundStyle(.customWhite)
+           .font(.system(size: 34, weight: .bold))
+    }
 }
 
 
