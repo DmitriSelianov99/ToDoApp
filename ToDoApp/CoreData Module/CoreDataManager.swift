@@ -30,9 +30,6 @@ class CoreDataManager {
         }
         
         context = container.viewContext
-        
-        print(container)
-        print(context)
     }
     
     
@@ -68,7 +65,6 @@ class CoreDataTodoViewModel: ObservableObject {
     }
     
     func addTodo(_ todo: TodoModel) {
-        print("Adding todo: \(todo)")
         let newTodo = TodoEntity(context: manager.context)
         newTodo.id = Int16(todo.id)
         newTodo.title = todo.title ?? "Default title"
@@ -88,7 +84,6 @@ class CoreDataTodoViewModel: ObservableObject {
             if let todo = try manager.context.fetch(request).first {
                 todo.completed.toggle()
                 save()
-                print("Toggled completed for todo with id: \(id)")
             } else {
                 print("Todo with id \(id) not found")
             }
@@ -106,7 +101,6 @@ class CoreDataTodoViewModel: ObservableObject {
                 todo.title = title
                 todo.todo = text
                 save()
-                print("Editing completed for todo with id: \(id)")
             } else {
                 print("Todo with id \(id) not found")
             }
@@ -123,7 +117,6 @@ class CoreDataTodoViewModel: ObservableObject {
             if let todoToDelete = results.first {
                 manager.context.delete(todoToDelete as! NSManagedObject)
                 save()
-                print("Объект с ID \(id) удален")
             } else {
                 print("Объект с ID \(id) не найден.")
             }
